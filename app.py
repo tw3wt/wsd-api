@@ -33,4 +33,4 @@ api.add_namespace(urgent_ns, path="/api/urgent")
 register_error_handlers(app)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="10.0.0.10", port=443)
