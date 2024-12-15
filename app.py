@@ -9,6 +9,7 @@ from routes.application_routes import api as application_ns
 from routes.popular_routes import api as popular_ns
 from routes.recommend_jobs_routes import api as recommend_ns
 from routes.urgent_jobs_routes import api as urgent_ns
+from routes.bookmark_routes import api as bookmark_ns
 
 app = Flask(__name__)
 configure_app(app)
@@ -28,9 +29,10 @@ api.add_namespace(application_ns, path="/api/applications")
 api.add_namespace(popular_ns, path="/api/popular")
 api.add_namespace(recommend_ns, path="/api/recommend")
 api.add_namespace(urgent_ns, path="/api/urgent")
+api.add_namespace(bookmark_ns, path="api/bookmark")
 
 # 에러 핸들러 등록
 register_error_handlers(app)
 
 if __name__ == "__main__":
-    app.run(host="10.0.0.10", port=443)
+    app.run(host="0.0.0.0", port=443, ssl_context='adhoc')
