@@ -24,10 +24,12 @@ class BookmarkModel:
         """
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO bookmarks (user_id, job_id) VALUES (%s, %s)",
-            (user_id, job_id)
-        )
+        query = """
+            INSERT INTO bookmarks (user_id, job_id)
+            VALUES (%s, %s)
+            ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)
+        """
+        cursor.execute(query, (user_id, job_id))
         conn.commit()
         cursor.close()
         conn.close()
