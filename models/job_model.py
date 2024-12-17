@@ -78,7 +78,15 @@ class JobModel:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        query = "SELECT * FROM jobs WHERE id = %s"
+        query = """
+            SELECT jobs.*, 
+                GROUP_CONCAT(badges.name) AS badges
+            FROM jobs
+            LEFT JOIN job_badges ON jobs.id = job_badges.job_id
+            LEFT JOIN badges ON job_badges.badge_id = badges.id
+            WHERE jobs.id = %s
+            GROUP BY jobs.id
+        """
         cursor.execute(query, (job_id,))
         job = cursor.fetchone()
 
