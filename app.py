@@ -23,13 +23,13 @@ api = Api(
 )
 
 # 네임스페이스 등록
-api.add_namespace(user_ns, path="/api/users")
-api.add_namespace(job_ns, path="/api/jobs")
-api.add_namespace(application_ns, path="/api/applications")
-api.add_namespace(popular_ns, path="/api/popular")
-api.add_namespace(recommend_ns, path="/api/recommend")
-api.add_namespace(urgent_ns, path="/api/urgent")
-api.add_namespace(bookmark_ns, path="api/bookmark")
+api.add_namespace(user_ns, path="/auth")
+api.add_namespace(job_ns, path="/jobs")
+api.add_namespace(application_ns, path="/applications")
+api.add_namespace(popular_ns, path="/popular")
+api.add_namespace(recommend_ns, path="/recommend")
+api.add_namespace(urgent_ns, path="/urgent")
+api.add_namespace(bookmark_ns, path="/bookmarks")
 
 # 에러 핸들러 등록
 register_error_handlers(app)

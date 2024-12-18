@@ -32,16 +32,16 @@ def login_user(data):
 
     user = UserModel.find_by_email(email)
     if not user:
-        return {"error": "Invalid email or password"}, 401
+        return {"error": "Invalid email"}, 401
 
     # 비밀번호 검증 (Base64 디코딩)
     stored_password = base64.b64decode(user["password"]).decode()
     if stored_password != password:
-        return {"error": "Invalid email or password"}, 401
+        return {"error": "Invalid password"}, 401
 
     # JWT 토큰 발급
-    access_token = generate_token(user["id"], timedelta(minutes=15))
-    refresh_token = generate_token(user["id"], timedelta(days=7))
+    access_token = generate_token(user["id"])
+    refresh_token = generate_token(user["id"])
 
     # 로그인 이력 저장
     conn = get_db_connection()
@@ -51,7 +51,7 @@ def login_user(data):
     cursor.close()
     conn.close()
 
-    return {"access_token": access_token, "refresh_token": refresh_token}, 200
+    return {"status" : "success"}, 200
 
 def refresh_token(refresh_token):
     try:

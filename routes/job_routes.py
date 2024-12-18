@@ -31,7 +31,7 @@ class JobList(Resource):
         params = request.args
         return get_jobs(params)
 
-@api.route("/<int:job_id>")
+@api.route("/:<int:job_id>")
 class JobDetails(Resource):
     def get(self, job_id):
         """

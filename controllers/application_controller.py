@@ -36,4 +36,3 @@ def cancel_application(user_id, application_id):
     지원 취소
     """
     return ApplicationModel.cancel_user_application(user_id, application_id)
-    

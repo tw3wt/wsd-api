@@ -1,4 +1,5 @@
 from db import get_db_connection
+from datetime import datetime
 
 class BookmarkModel:
     @staticmethod
@@ -7,7 +8,7 @@ class BookmarkModel:
         북마크 존재 여부 확인
         """
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
         cursor.execute(
             "SELECT COUNT(*) FROM bookmarks WHERE user_id = %s AND job_id = %s",
             (user_id, job_id)
@@ -23,7 +24,7 @@ class BookmarkModel:
         북마크 추가
         """
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
         query = """
             INSERT INTO bookmarks (user_id, job_id)
             VALUES (%s, %s)
@@ -40,7 +41,7 @@ class BookmarkModel:
         북마크 제거
         """
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
         cursor.execute(
             "DELETE FROM bookmarks WHERE user_id = %s AND job_id = %s",
             (user_id, job_id)
@@ -55,7 +56,7 @@ class BookmarkModel:
         사용자별 북마크 목록 조회
         """
         conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor()
 
         query = """
             SELECT jobs.id, jobs.title, jobs.location, jobs.description, bookmarks.created_at
@@ -67,6 +68,11 @@ class BookmarkModel:
         """
         cursor.execute(query, (user_id, page_size, (page - 1) * page_size))
         bookmarks = cursor.fetchall()
+
+        for bookmark in bookmarks:
+            if "created_at" in bookmark and isinstance(bookmark["created_at"], datetime):
+                bookmark["created_at"] = bookmark["created_at"].isoformat()
+
         cursor.close()
         conn.close()
         return bookmarks

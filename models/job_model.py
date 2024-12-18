@@ -11,8 +11,16 @@ class JobModel:
 
         # 기본 쿼리
         query = """
-            SELECT *
+            SELECT jobs.id, jobs.title, jobs.location, jobs.experience,
+                   jobs.education, jobs.employment_type, jobs.deadline,
+                   (SELECT COUNT(*) FROM job_views WHERE job_views.job_id = jobs.id) AS views,
+                   GROUP_CONCAT(skills.name) AS skills,
+                   GROUP_CONCAT(badges.name) AS badges
             FROM jobs
+            LEFT JOIN job_skills ON jobs.id = job_skills.job_id
+            LEFT JOIN skills ON job_skills.skill_id = skills.id
+            LEFT JOIN job_badges ON jobs.id = job_badges.job_id
+            LEFT JOIN badges ON job_badges.badge_id = badges.id
             WHERE 1=1
         """
         params = []
@@ -51,6 +59,9 @@ class JobModel:
             params.append(f"%{search_query['position']}%")
 
         # 정렬
+        allowed_sort_columns = ["created_at", "views"]
+        if sort_by not in allowed_sort_columns:
+            sort_by = "created_at"
         query += f" ORDER BY {sort_by} DESC"
 
         # 페이지네이션
@@ -71,7 +82,7 @@ class JobModel:
         return jobs, total
 
     @staticmethod
-    def fetch_job_details(job_id):
+    def fetch_job_details(job_id, user_id):
         """
         공고 상세 정보 가져오기
         """
@@ -80,7 +91,8 @@ class JobModel:
 
         query = """
             SELECT jobs.*, 
-                GROUP_CONCAT(badges.name) AS badges
+                   GROUP_CONCAT(badges.name) AS badges,
+                   (SELECT COUNT(*) FROM job_views WHERE job_views.job_id = jobs.id) AS views
             FROM jobs
             LEFT JOIN job_badges ON jobs.id = job_badges.job_id
             LEFT JOIN badges ON job_badges.badge_id = badges.id
@@ -89,6 +101,15 @@ class JobModel:
         """
         cursor.execute(query, (job_id,))
         job = cursor.fetchone()
+
+        if job and user_id:
+            # 조회 기록 추가
+            view_query = """
+                INSERT INTO job_views (job_id, user_id, viewed_at)
+                VALUES (%s, %s, NOW())
+            """
+            cursor.execute(view_query, (job_id, user_id))
+            conn.commit()
 
         cursor.close()
         conn.close()
@@ -118,7 +139,8 @@ class JobModel:
         cursor = conn.cursor(dictionary=True)
 
         query = """
-            SELECT id, title, location, views
+            SELECT jobs.id, jobs.title, jobs.location, 
+                   (SELECT COUNT(*) FROM job_views WHERE job_views.job_id = jobs.id) AS views
             FROM jobs
             WHERE id != %s
             ORDER BY views DESC

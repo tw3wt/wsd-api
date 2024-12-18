@@ -31,3 +31,43 @@ def get_recommended_jobs(user_id):
             "status": "error",
             "message": str(e)
         }, 500
+
+
+def add_user_skills(user_id, skill_data):
+    """
+    사용자 기술 추가
+    """
+    try:
+        skills = skill_data.get("skills", [])
+        if not skills:
+            return {"status": "error", "message": "No skills provided"}, 400
+
+        for skill in skills:
+            UserSkillModel.add_user_skill(user_id, skill)
+
+        return {"status": "success", "message": "Skills added successfully"}, 201
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500
+
+def get_user_skills(user_id):
+    """
+    사용자 기술 조회
+    """
+    try:
+        skills = UserSkillModel.fetch_user_skills(user_id)
+        return {"status": "success", "data": skills}, 200
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500
+
+def remove_user_skill(user_id, skill_name):
+    """
+    사용자 기술 삭제
+    """
+    try:
+        if not skill_name:
+            return {"status": "error", "message": "Skill name is required"}, 400
+
+        UserSkillModel.remove_user_skill(user_id, skill_name)
+        return {"status": "success", "message": "Skill removed successfully"}, 200
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500

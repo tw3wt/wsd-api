@@ -40,3 +40,72 @@ class RecommendModel:
         conn.close()
 
         return recommendations
+
+    @staticmethod
+    def add_user_skill(user_id, skill_name):
+        """
+        사용자 기술 추가
+        """
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # 기술이 `skills` 테이블에 없는 경우 추가
+        skill_query = """
+            INSERT INTO skills (name) VALUES (%s)
+            ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)
+        """
+        cursor.execute(skill_query, (skill_name,))
+        skill_id = cursor.lastrowid
+
+        # 사용자 기술 추가
+        user_skill_query = """
+            INSERT INTO user_skills (user_id, skill_id)
+            VALUES (%s, %s)
+            ON DUPLICATE KEY UPDATE user_id = user_id
+        """
+        cursor.execute(user_skill_query, (user_id, skill_id))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    @staticmethod
+    def fetch_user_skills(user_id):
+        """
+        사용자 기술 조회
+        """
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT skills.name
+            FROM user_skills
+            INNER JOIN skills ON user_skills.skill_id = skills.id
+            WHERE user_skills.user_id = %s
+        """
+        cursor.execute(query, (user_id,))
+        skills = [row["name"] for row in cursor.fetchall()]
+
+        cursor.close()
+        conn.close()
+        return skills
+
+    @staticmethod
+    def remove_user_skill(user_id, skill_name):
+        """
+        사용자 기술 삭제
+        """
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query = """
+            DELETE user_skills
+            FROM user_skills
+            INNER JOIN skills ON user_skills.skill_id = skills.id
+            WHERE user_skills.user_id = %s AND skills.name = %s
+        """
+        cursor.execute(query, (user_id, skill_name))
+
+        conn.commit()
+        cursor.close()
+        conn.close()

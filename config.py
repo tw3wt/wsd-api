@@ -2,13 +2,13 @@ import secrets
 
 # 32바이트 길이의 랜덤 문자열 생성
 jwt_secret_key = secrets.token_hex(32)
-print(jwt_secret_key)
 
 DB_CONFIG = {
     "host": "localhost",
-    "user": "MySQL",
-    "password": "0000",
-    "database": "job_db"
+    "user": "wsd202212251",
+    "password": "qwer1234",
+    "database": "job_db",
+    "port" : 3000
 }
 
 SECRET_KEY = jwt_secret_key
